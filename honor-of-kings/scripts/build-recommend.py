@@ -118,11 +118,58 @@ def format_hero_info(hero_data, data):
             output.append(f"  冷却: {skill.get('cooldown', '无')} | 消耗: {skill.get('cost', '无')}")
             output.append(f"  {skill['description'][:100]}...")
     
-    # 铭文推荐
+    # 铭文推荐（根据英雄类型智能推荐）
     output.append(f"\n【铭文推荐】")
-    for ins in hero.get('inscriptions', []):
-        if ins.get('name') and ins.get('effect'):
-            output.append(f"• {ins['name']}: {ins['effect']}")
+    hero_type = hero.get('type', '')
+    inscriptions = hero.get('inscriptions', [])
+    
+    # 检查API返回的铭文是否匹配英雄类型
+    api_inscriptions_valid = False
+    if inscriptions:
+        # 检查是否有法攻铭文给物理英雄
+        has_magic = any('法术' in ins.get('effect', '') for ins in inscriptions)
+        if hero_type in ['战士', '刺客', '射手'] and not has_magic:
+            api_inscriptions_valid = True
+        elif hero_type in ['法师', '辅助'] and has_magic:
+            api_inscriptions_valid = True
+    
+    if api_inscriptions_valid:
+        # API数据合理，使用API推荐
+        for ins in inscriptions:
+            if ins.get('name') and ins.get('effect'):
+                output.append(f"• {ins['name']}: {ins['effect']}")
+    else:
+        # API数据不合理，根据英雄类型推荐正确铭文
+        if hero_type in ['战士', '刺客']:
+            output.append(f"• 异变: 物理攻击力+2, 物理护甲穿透+3.6")
+            output.append(f"• 鹰眼: 物理攻击力+0.9, 物理护甲穿透+6.4")
+            output.append(f"• 隐匿: 物理攻击力+1.6, 移速+1%")
+            output.append(f"  (API返回的铭文数据与英雄类型不匹配，已自动修正)")
+        elif hero_type == '射手':
+            output.append(f"• 红月: 暴击率+0.5%, 攻击速度+1.6%")
+            output.append(f"• 鹰眼: 物理攻击力+0.9, 物理护甲穿透+6.4")
+            output.append(f"• 隐匿: 物理攻击力+1.6, 移速+1%")
+            output.append(f"  (API返回的铭文数据与英雄类型不匹配，已自动修正)")
+        elif hero_type == '法师':
+            output.append(f"• 圣人: 法术攻击力+5.3")
+            output.append(f"• 心眼: 法术攻击力+2.5, 法术护甲穿透+3.8")
+            output.append(f"• 轮回: 法术攻击力+2.4, 法术吸血+1%")
+            output.append(f"  (API返回的铭文数据与英雄类型不匹配，已自动修正)")
+        elif hero_type == '坦克':
+            output.append(f"• 虚空: 最大生命+37.5, 冷却缩减+0.6%")
+            output.append(f"• 调和: 最大生命+45, 生命回复+5.2, 移速+0.4%")
+            output.append(f"• 宿命: 攻击速度+1%, 最大生命+33.7, 物理防御+2.3")
+            output.append(f"  (API返回的铭文数据与英雄类型不匹配，已自动修正)")
+        elif hero_type == '辅助':
+            output.append(f"• 虚空: 最大生命+37.5, 冷却缩减+0.6%")
+            output.append(f"• 调和: 最大生命+45, 生命回复+5.2, 移速+0.4%")
+            output.append(f"• 宿命: 攻击速度+1%, 最大生命+33.7, 物理防御+2.3")
+            output.append(f"  (API返回的铭文数据与英雄类型不匹配，已自动修正)")
+        else:
+            # 未知类型，使用API数据
+            for ins in inscriptions:
+                if ins.get('name') and ins.get('effect'):
+                    output.append(f"• {ins['name']}: {ins['effect']}")
     
     # 出装推荐
     output.append(f"\n【出装推荐】")
