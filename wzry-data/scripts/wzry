@@ -1,0 +1,7 @@
+#!/bin/bash
+# 王者荣耀出装推荐系统
+# 用法: wzry <英雄名> 或 wzry --list 或 wzry --stats
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+python3 "$SCRIPT_DIR/build-recommend.py" "$@"
