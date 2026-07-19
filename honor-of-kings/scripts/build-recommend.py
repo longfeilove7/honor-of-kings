@@ -6,7 +6,7 @@ import json
 import sys
 import os
 
-CACHE_DIR = os.path.expanduser("~/.hermes/cache/wzry")
+CACHE_DIR = os.path.expanduser("~/.hermes/cache/honor-of-kings")
 
 def load_data():
     """加载所有数据"""
